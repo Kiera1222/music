@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Piano</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.26/Tone.js"></script>
+
+
+    <style>
+        .piano-container {
+            display: flex;
+            justify-content: center;
+            margin: 50px auto;
+            padding: 20px;
+            position: relative;
+            width: 420px; /* 固定寬度以確保鍵盤對齊 */
+        }
+
+        .piano-key {
+            width: 60px;
+            height: 200px;
+            background-color: white;
+            border: 1px solid black;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            padding-bottom: 20px;
+            cursor: pointer;
+            position: relative;
+            z-index: 1;
+            margin: 0;
+            border-radius: 0 0 5px 5px;
+        }
+
+        .piano-key.black {
+            width: 40px;
+            height: 120px;
+            background-color: black;
+            position: absolute;
+            z-index: 2;
+            border-radius: 0 0 3px 3px;
+        }
+
+        .piano-key.black .key-label {
+            color: white;
+        }
+
+        /* 修改黑鍵定位選擇器 */
+        .piano-key.black[data-note="C#4"] { left: 45px; }
+        .piano-key.black[data-note="D#4"] { left: 105px; }
+        .piano-key.black[data-note="F#4"] { left: 225px; }
+        .piano-key.black[data-note="G#4"] { left: 285px; }
+        .piano-key.black[data-note="A#4"] { left: 345px; }
+
+        .piano-key.active {
+            background-color: #e0e0e0;
+        }
+
+        .piano-key.black.active {
+            background-color: #333;
+        }
+
+        .key-label {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .instructions {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="instructions">
+        <h2>Virtual Piano</h2>
+        <p>White keys: Use Z to M to play C to B</p>
+        <p>Black keys: Use W, E, T, Y, U to play C# to A#</p>
+    </div>
+    <div class="piano-container">
+        <!-- 白鍵 -->
+        <div class="piano-key" data-note="C4" data-key="z"><span class="key-label">Z</span></div>
+        <div class="piano-key" data-note="D4" data-key="x"><span class="key-label">X</span></div>
+        <div class="piano-key" data-note="E4" data-key="c"><span class="key-label">C</span></div>
+        <div class="piano-key" data-note="F4" data-key="v"><span class="key-label">V</span></div>
+        <div class="piano-key" data-note="G4" data-key="b"><span class="key-label">B</span></div>
+        <div class="piano-key" data-note="A4" data-key="n"><span class="key-label">N</span></div>
+        <div class="piano-key" data-note="B4" data-key="m"><span class="key-label">M</span></div>
+
+        <!-- 黑鍵 -->
+        <div class="piano-key black" data-note="C#4" data-key="w"><span class="key-label">W</span></div>
+        <div class="piano-key black" data-note="D#4" data-key="e"><span class="key-label">E</span></div>
+        <div class="piano-key black" data-note="F#4" data-key="t"><span class="key-label">T</span></div>
+        <div class="piano-key black" data-note="G#4" data-key="y"><span class="key-label">Y</span></div>
+        <div class="piano-key black" data-note="A#4" data-key="u"><span class="key-label">U</span></div>
+    </div>
+    
+
+    <script>
+        // 創建鋼琴音色
+        const sampler = new Tone.Sampler({
+            urls: {
+                "C4": "C4.mp3",
+                "D#4": "Ds4.mp3",
+                "F#4": "Fs4.mp3",
+                "A4": "A4.mp3",
+            },
+            release: 1,
+            baseUrl: "https://tonejs.github.io/audio/salamander/",
+        }).toDestination();
+
+        // 初始化音頻
+        async function initAudio() {
+            await Tone.start();
+            console.log("Audio is ready");
+        }
+
+        // 音符映射表
+        const noteMap = {
+            'z': 'C4',
+            'w': 'C#4',
+            'x': 'D4',
+            'e': 'D#4',
+            'c': 'E4',
+            'v': 'F4',
+            't': 'F#4',
+            'b': 'G4',
+            'y': 'G#4',
+            'n': 'A4',
+            'u': 'A#4',
+            'm': 'B4'
+        };
+
+        // 等待採樣器加載
+        Tone.loaded().then(() => {
+            console.log("Sampler loaded!");
+            
+            // 鍵盤事件處理
+            document.addEventListener('keydown', async (event) => {
+                const key = event.key.toLowerCase();
+                
+                // 防止重複觸發
+                if (event.repeat) return;
+
+                // 檢查是否是有效的鋼琴鍵
+                if (noteMap[key]) {
+                    // 視覺反饋
+                    const pianoKey = document.querySelector(`.piano-key[data-key="${key}"]`);
+                    if (pianoKey) {
+                        pianoKey.classList.add('active');
+                    }
+
+                    // 確保音頻已初始化
+                    try {
+                        await initAudio();
+                        // 播放音符
+                        sampler.triggerAttackRelease(noteMap[key], "4n");
+                    } catch (error) {
+                        console.error('Error playing note:', error);
+                    }
+                }
+            });
+
+            document.addEventListener('keyup', (event) => {
+                const key = event.key.toLowerCase();
+                const pianoKey = document.querySelector(`.piano-key[data-key="${key}"]`);
+                if (pianoKey) {
+                    pianoKey.classList.remove('active');
+                }
+            });
+
+            // 滑鼠事件處理
+            document.querySelectorAll('.piano-key').forEach(key => {
+                key.addEventListener('mousedown', async () => {
+                    const note = key.dataset.note;
+                    key.classList.add('active');
+                    try {
+                        await initAudio();
+                        sampler.triggerAttackRelease(note, "4n");
+                    } catch (error) {
+                        console.error('Error playing note:', error);
+                    }
+                });
+
+                key.addEventListener('mouseup', () => {
+                    key.classList.remove('active');
+                });
+
+                key.addEventListener('mouseleave', () => {
+                    key.classList.remove('active');
+                });
+            });
+        });
+
+        // 添加初始點擊事件監聽器來啟動音頻
+        document.addEventListener('click', async () => {
+            await initAudio();
+        }, { once: true });
+    </script>
+</body>
+</html>

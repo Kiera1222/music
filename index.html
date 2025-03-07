@@ -8,13 +8,17 @@
 
 
     <style>
+        body {
+    background-color:#222222; /* 深灰色 */
+}
+
         .piano-container {
             display: flex;
             justify-content: center;
             margin: 50px auto;
             padding: 20px;
             position: relative;
-            width: 420px; /* 固定寬度以確保鍵盤對齊 */
+            width: 900px; /* 加寬容器以容納額外的 C5 鍵 */
         }
 
         .piano-key {
@@ -47,11 +51,17 @@
         }
 
         /* 修改黑鍵定位選擇器 */
-        .piano-key.black[data-note="C#4"] { left: 45px; }
-        .piano-key.black[data-note="D#4"] { left: 105px; }
-        .piano-key.black[data-note="F#4"] { left: 225px; }
-        .piano-key.black[data-note="G#4"] { left: 285px; }
-        .piano-key.black[data-note="A#4"] { left: 345px; }
+        .piano-key.black[data-note="C#3"] { left: 45px; }
+        .piano-key.black[data-note="D#3"] { left: 105px; }
+        .piano-key.black[data-note="F#3"] { left: 225px; }
+        .piano-key.black[data-note="G#3"] { left: 285px; }
+        .piano-key.black[data-note="A#3"] { left: 345px; }
+
+        .piano-key.black[data-note="C#4"] { left: 465px; }
+        .piano-key.black[data-note="D#4"] { left: 525px; }
+        .piano-key.black[data-note="F#4"] { left: 645px; }
+        .piano-key.black[data-note="G#4"] { left: 705px; }
+        .piano-key.black[data-note="A#4"] { left: 765px; }
 
         .piano-key.active {
             background-color: #e0e0e0;
@@ -71,35 +81,60 @@
             text-align: center;
             font-family: Arial, sans-serif;
             margin-bottom: 20px;
+            color:#e0e0e0;
         }
     </style>
 </head>
 <body>
-    
+    <body onclick="startAudioContext()">
+
     <div class="instructions">
         <h2>Virtual Piano</h2>
-        <p>White keys: Use Z to M to play C to B</p>
-        <p>Black keys: Use W, E, T, Y, U to play C# to A#</p>
+        <p>Lower Octave: Q to U (white keys) and 2,3,5,6,7 (black keys)</p>
+        <p>Higher Octave: C to . (white keys) and F,G,J,K,L (black keys)</p>
     </div>
     <div class="piano-container">
-        <!-- 白鍵 -->
-        <div class="piano-key" data-note="C4" data-key="z"><span class="key-label">Z</span></div>
-        <div class="piano-key" data-note="D4" data-key="x"><span class="key-label">X</span></div>
-        <div class="piano-key" data-note="E4" data-key="c"><span class="key-label">C</span></div>
-        <div class="piano-key" data-note="F4" data-key="v"><span class="key-label">V</span></div>
-        <div class="piano-key" data-note="G4" data-key="b"><span class="key-label">B</span></div>
-        <div class="piano-key" data-note="A4" data-key="n"><span class="key-label">N</span></div>
-        <div class="piano-key" data-note="B4" data-key="m"><span class="key-label">M</span></div>
+        <!-- 低八度白鍵 -->
+        <div class="piano-key" data-note="C3" data-key="q"><span class="key-label">Q</span></div>
+        <div class="piano-key" data-note="D3" data-key="w"><span class="key-label">W</span></div>
+        <div class="piano-key" data-note="E3" data-key="e"><span class="key-label">E</span></div>
+        <div class="piano-key" data-note="F3" data-key="r"><span class="key-label">R</span></div>
+        <div class="piano-key" data-note="G3" data-key="t"><span class="key-label">T</span></div>
+        <div class="piano-key" data-note="A3" data-key="y"><span class="key-label">Y</span></div>
+        <div class="piano-key" data-note="B3" data-key="u"><span class="key-label">U</span></div>
 
-        <!-- 黑鍵 -->
-        <div class="piano-key black" data-note="C#4" data-key="w"><span class="key-label">W</span></div>
-        <div class="piano-key black" data-note="D#4" data-key="e"><span class="key-label">E</span></div>
-        <div class="piano-key black" data-note="F#4" data-key="t"><span class="key-label">T</span></div>
-        <div class="piano-key black" data-note="G#4" data-key="y"><span class="key-label">Y</span></div>
-        <div class="piano-key black" data-note="A#4" data-key="u"><span class="key-label">U</span></div>
+        <!-- 低八度黑鍵 -->
+        <div class="piano-key black" data-note="C#3" data-key="2"><span class="key-label">2</span></div>
+        <div class="piano-key black" data-note="D#3" data-key="3"><span class="key-label">3</span></div>
+        <div class="piano-key black" data-note="F#3" data-key="5"><span class="key-label">5</span></div>
+        <div class="piano-key black" data-note="G#3" data-key="6"><span class="key-label">6</span></div>
+        <div class="piano-key black" data-note="A#3" data-key="7"><span class="key-label">7</span></div>
+
+        <!-- 高八度白鍵 -->
+        <div class="piano-key" data-note="C4" data-key="c"><span class="key-label">C</span></div>
+        <div class="piano-key" data-note="D4" data-key="v"><span class="key-label">V</span></div>
+        <div class="piano-key" data-note="E4" data-key="b"><span class="key-label">B</span></div>
+        <div class="piano-key" data-note="F4" data-key="n"><span class="key-label">N</span></div>
+        <div class="piano-key" data-note="G4" data-key="m"><span class="key-label">M</span></div>
+        <div class="piano-key" data-note="A4" data-key=","><span class="key-label">,</span></div>
+        <div class="piano-key" data-note="B4" data-key="."><span class="key-label">.</span></div>
+
+        <!-- 高八度黑鍵 -->
+        <div class="piano-key black" data-note="C#4" data-key="f"><span class="key-label">F</span></div>
+        <div class="piano-key black" data-note="D#4" data-key="g"><span class="key-label">G</span></div>
+        <div class="piano-key black" data-note="F#4" data-key="j"><span class="key-label">J</span></div>
+        <div class="piano-key black" data-note="G#4" data-key="k"><span class="key-label">K</span></div>
+        <div class="piano-key black" data-note="A#4" data-key="l"><span class="key-label">L</span></div>
+
+        <!-- 添加 C5 白鍵 -->
+        <div class="piano-key" data-note="C5" data-key="/"><span class="key-label">/</span></div>
     </div>
     
-
+    function startAudioContext() {
+        if (typeof audioCtx !== "undefined" && audioCtx.state === "suspended") {
+            audioCtx.resume();
+        }
+    }
     <script>
         // 創建鋼琴音色
         const sampler = new Tone.Sampler({
@@ -111,6 +146,9 @@
             },
             release: 1,
             baseUrl: "https://tonejs.github.io/audio/salamander/",
+            onload: () => {
+                console.log("Sampler loaded successfully!");
+            }
         }).toDestination();
 
         // 初始化音頻
@@ -119,20 +157,48 @@
             console.log("Audio is ready");
         }
 
-        // 音符映射表
+        // 播放音符函數
+        async function playNote(note) {
+            try {
+                await initAudio();
+                sampler.triggerAttackRelease(note, "2n");
+                console.log("Playing note:", note);
+            } catch (error) {
+                console.error('Error playing note:', error);
+            }
+        }
+
+        // 更新音符映射表
         const noteMap = {
-            'z': 'C4',
-            'w': 'C#4',
-            'x': 'D4',
-            'e': 'D#4',
-            'c': 'E4',
-            'v': 'F4',
-            't': 'F#4',
-            'b': 'G4',
-            'y': 'G#4',
-            'n': 'A4',
-            'u': 'A#4',
-            'm': 'B4'
+            // 低八度
+            'q': 'C3',
+            '2': 'C#3',
+            'w': 'D3',
+            '3': 'D#3',
+            'e': 'E3',
+            'r': 'F3',
+            '5': 'F#3',
+            't': 'G3',
+            '6': 'G#3',
+            'y': 'A3',
+            '7': 'A#3',
+            'u': 'B3',
+
+            // 高八度
+            'c': 'C4',
+            'f': 'C#4',
+            'v': 'D4',
+            'g': 'D#4',
+            'b': 'E4',
+            'n': 'F4',
+            'j': 'F#4',
+            'm': 'G4',
+            'k': 'G#4',
+            ',': 'A4',
+            'l': 'A#4',
+            '.': 'B4',
+            '/': 'C5'
+
         };
 
         // 等待採樣器加載
@@ -154,14 +220,8 @@
                         pianoKey.classList.add('active');
                     }
 
-                    // 確保音頻已初始化
-                    try {
-                        await initAudio();
-                        // 播放音符
-                        sampler.triggerAttackRelease(noteMap[key], "4n");
-                    } catch (error) {
-                        console.error('Error playing note:', error);
-                    }
+                    // 播放音符
+                    await playNote(noteMap[key]);
                 }
             });
 
@@ -178,12 +238,7 @@
                 key.addEventListener('mousedown', async () => {
                     const note = key.dataset.note;
                     key.classList.add('active');
-                    try {
-                        await initAudio();
-                        sampler.triggerAttackRelease(note, "4n");
-                    } catch (error) {
-                        console.error('Error playing note:', error);
-                    }
+                    await playNote(note);
                 });
 
                 key.addEventListener('mouseup', () => {
@@ -196,7 +251,17 @@
             });
         });
 
-        // 添加初始點擊事件監聽器來啟動音頻
+        // 確保頁面加載完成後初始化音頻
+        window.addEventListener('load', async () => {
+            try {
+                await Tone.start();
+                console.log("Audio context initialized");
+            } catch (error) {
+                console.error("Error initializing audio:", error);
+            }
+        });
+
+        // 添加用戶互動時的音頻初始化
         document.addEventListener('click', async () => {
             await initAudio();
         }, { once: true });
